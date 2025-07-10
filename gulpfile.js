@@ -1,0 +1,82 @@
+const gulp = require("gulp");
+const sass = require("gulp-sass")(require("sass"));
+const terser = require("gulp-terser");
+const htmlmin = require("gulp-htmlmin");
+const browserSync = require("browser-sync").create();
+const del = require("del").deleteAsync;
+
+const paths = {
+    scss: "www/css/**/*.scss",
+    js: "www/js/**/*.js",
+    html: "www/**/*.html",
+    out: "static",
+};
+
+function css() {
+    return gulp
+        .src(paths.scss)
+        .pipe(
+            sass({
+                style: "compressed",
+            }).on("error", sass.logError)
+        )
+        .pipe(gulp.dest(`${paths.out}/css`))
+        .pipe(browserSync.stream());
+}
+
+function js() {
+    return gulp
+        .src(paths.js)
+        .pipe(terser())
+        .pipe(gulp.dest(`${paths.out}/js`))
+        .pipe(browserSync.stream());
+}
+
+function html() {
+    return gulp
+        .src(paths.html)
+        .pipe(htmlmin({ collapseWhitespace: true }))
+        .pipe(gulp.dest(paths.out))
+        .pipe(browserSync.stream());
+}
+
+function serve() {
+    // Warning: This also checks gulp args
+    const open = !process.argv.slice(2).includes("--no-open");
+
+    browserSync.init({
+        server: {
+            baseDir: paths.out,
+            middleware: [
+                function (req, _res, next) {
+                    const hasExt = /\.\w+$/.test(req.url);
+                    if (!hasExt && !req.url.endsWith("/")) {
+                        req.url += ".html";
+                    }
+
+                    next();
+                },
+            ],
+        },
+        open,
+    });
+
+    gulp.watch(paths.scss, css);
+    gulp.watch(paths.js, js);
+    gulp.watch(paths.html, html);
+}
+
+function clean() {
+    return del([paths.out]);
+}
+
+const build = gulp.parallel(css, js, html);
+
+exports.css = css;
+exports.js = js;
+exports.html = html;
+exports.build = build;
+exports.rebuild = gulp.series(clean, build);
+exports.serve = gulp.series(build, serve);
+exports.clean = clean;
+exports.default = exports.serve;
