@@ -70,7 +70,8 @@ function clean() {
     return del([paths.out]);
 }
 
-const build = gulp.parallel(css, js, html);
+// TODO: Add `js` when any js file is added
+const build = gulp.parallel(css, html);
 
 exports.css = css;
 exports.js = js;

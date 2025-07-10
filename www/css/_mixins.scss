@@ -1,0 +1,27 @@
+// prettier-ignore
+@mixin box-sizing($value: border-box) {
+    -webkit-box-sizing: $value;
+       -moz-box-sizing: $value;
+            box-sizing: $value;
+}
+
+// prettier-ignore
+@mixin text-size-adjust($value) {
+    -webkit-text-size-adjust: $value;
+        -ms-text-size-adjust: $value;
+            text-size-adjust: $value;
+}
+
+@mixin font-smoothing($value: on) {
+    @if ($value == on) {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-smoothing: antialiased;
+        font-smooth: always;
+    } @else {
+        -webkit-font-smoothing: none;
+        -moz-osx-font-smoothing: unset;
+        font-smoothing: unset;
+        font-smooth: never;
+    }
+}
