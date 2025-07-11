@@ -10,5 +10,10 @@
         "**/node_modules": true,
         "package-lock.json": true,
         "static/": true
+    },
+    "pugFormatter.tabSize": 2,
+    "[pug]": {
+        "editor.tabSize": 2,
+        "prettier.tabWidth": 2
     }
 }

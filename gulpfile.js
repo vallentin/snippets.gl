@@ -2,13 +2,17 @@ const gulp = require("gulp");
 const sass = require("gulp-sass")(require("sass"));
 const terser = require("gulp-terser");
 const htmlmin = require("gulp-htmlmin");
+const pug = require("gulp-pug");
 const browserSync = require("browser-sync").create();
 const del = require("del").deleteAsync;
+
+const globPug = "www/**/*.pug";
 
 const paths = {
     scss: "www/css/**/*.scss",
     js: "www/js/**/*.js",
     html: "www/**/*.html",
+    pug: [globPug, "!www/**/_*.pug", "!www/{views,partials}/**"],
     out: "static",
 };
 
@@ -40,6 +44,15 @@ function html() {
         .pipe(browserSync.stream());
 }
 
+function render() {
+    // prettier-ignore
+    return gulp
+        .src(paths.pug)
+        .pipe(pug())
+        .pipe(gulp.dest(paths.out))
+        .pipe(browserSync.stream());
+}
+
 function serve() {
     // Warning: This also checks gulp args
     const open = !process.argv.slice(2).includes("--no-open");
@@ -64,6 +77,7 @@ function serve() {
     gulp.watch(paths.scss, css);
     gulp.watch(paths.js, js);
     gulp.watch(paths.html, html);
+    gulp.watch(globPug, render);
 }
 
 function clean() {
@@ -71,11 +85,12 @@ function clean() {
 }
 
 // TODO: Add `js` when any js file is added
-const build = gulp.parallel(css, html);
+const build = gulp.parallel(css, html, render);
 
 exports.css = css;
 exports.js = js;
 exports.html = html;
+exports.pug = render;
 exports.build = build;
 exports.rebuild = gulp.series(clean, build);
 exports.serve = gulp.series(build, serve);
