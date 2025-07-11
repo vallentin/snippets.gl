@@ -34,6 +34,9 @@ if ! nginx -t; then
     exit 2
 fi
 
+echo "Gzipping..."
+find "static/" -type f ! -name "*.gz" -print -exec gzip -kf {} \;
+
 echo "Restarting Nginx..."
 service nginx restart
 
