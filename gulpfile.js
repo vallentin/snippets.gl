@@ -3,8 +3,11 @@ const sass = require("gulp-sass")(require("sass"));
 const terser = require("gulp-terser");
 const htmlmin = require("gulp-htmlmin");
 const pug = require("gulp-pug");
+const data = require("gulp-data");
 const browserSync = require("browser-sync").create();
 const del = require("del").deleteAsync;
+
+const BASE_URL = "https://snippets.gl";
 
 const globPug = "www/**/*.pug";
 
@@ -45,9 +48,21 @@ function html() {
 }
 
 function render() {
-    // prettier-ignore
     return gulp
         .src(paths.pug)
+        .pipe(
+            data((file) => {
+                const relPath = file.relative
+                    .replace(/\\/g, "/") // Normalize path separators (Windows)
+                    .replace(/\.pug$/, "")
+                    .replace(/index$/, "");
+                const url = relPath.length > 0 ? `${BASE_URL}/${relPath}` : BASE_URL;
+
+                return {
+                    url,
+                };
+            })
+        )
         .pipe(pug())
         .pipe(gulp.dest(paths.out))
         .pipe(browserSync.stream());
